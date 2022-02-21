@@ -1,31 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alistair <alistair@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/23 17:04:29 by alkane            #+#    #+#             */
-/*   Updated: 2022/02/21 07:26:12 by alistair         ###   ########.fr       */
+/*   Created: 2021/11/25 02:50:58 by alkane            #+#    #+#             */
+/*   Updated: 2022/02/21 06:50:20 by alistair         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#include "pipex.h"
 
-# include <unistd.h>
-# include <fcntl.h>
-# include <stdlib.h>
-
-typedef struct s_state
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
-	int	val;
-}	t_state;
+	unsigned int	i;
 
-char	**ft_split(char const *s, char c);
-int		ft_strncmp(const char *s1, const char *s2, size_t n);
-void	*ft_calloc(size_t nmemb, size_t size);
-char	*ft_strtrim(char const *s1, char const *set);
-char	*ft_strjoin(char const *s1, char const *s2);
-
-#endif
+	i = 0;
+	if (n != 0)
+	{
+		while (i < n)
+		{
+			if ((s1[i] != s2[i]) || s1[i] == '\0' || s2[i] == '\0')
+				return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+		i++;
+		}
+	}
+	return (0);
+}

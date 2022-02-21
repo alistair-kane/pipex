@@ -1,31 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   ft_calloc.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alistair <alistair@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/23 17:04:29 by alkane            #+#    #+#             */
-/*   Updated: 2022/02/21 07:26:12 by alistair         ###   ########.fr       */
+/*   Created: 2021/11/27 22:09:45 by alkane            #+#    #+#             */
+/*   Updated: 2022/02/21 06:57:10 by alistair         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#include "pipex.h"
 
-# include <unistd.h>
-# include <fcntl.h>
-# include <stdlib.h>
-
-typedef struct s_state
+void	*ft_calloc(size_t nmemb, size_t size)
 {
-	int	val;
-}	t_state;
+	void	*p;
+	char	*s;
+	int		total;
 
-char	**ft_split(char const *s, char c);
-int		ft_strncmp(const char *s1, const char *s2, size_t n);
-void	*ft_calloc(size_t nmemb, size_t size);
-char	*ft_strtrim(char const *s1, char const *set);
-char	*ft_strjoin(char const *s1, char const *s2);
-
-#endif
+	total = nmemb * size;
+	p = malloc(nmemb * size);
+	if (!p)
+		return (0);
+	s = p;
+	while (total--)
+	{
+		*s = '\0';
+		s++;
+	}
+	return (p);
+}
