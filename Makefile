@@ -1,9 +1,10 @@
 NAME	= pipex
 CC		= gcc
 CFLAGS	= -Wall -Werror -Wextra -g
-SRCS	= src/ft_calloc.c src/ft_split.c src/ft_strjoin.c src/ft_strncmp.c src/ft_memmove.c src/ft_strlen.c pipex.c
-BONUS	= src/ft_calloc.c src/ft_split.c src/ft_strjoin.c src/ft_strncmp.c src/ft_memmove.c src/ft_strlen.c pipex.c
- 
+SRCS	= src/ft_calloc.c src/ft_split.c src/ft_strjoin.c src/ft_strncmp.c src/ft_memmove.c src/ft_strlen.c \
+		src/ft_memset.c src/ft_strchr.c src/ft_strrchr.c src/gnl.c ml_input.c pipex.c
+BONUS	= src/ft_calloc.c src/ft_split.c src/ft_strjoin.c src/ft_strncmp.c src/ft_memmove.c src/ft_strlen.c \
+		src/ft_memset.c src/ft_strchr.c src/ft_strrchr.c src/gnl.c ml_input.c pipex.c
 
 OBJS	= ${SRCS:.c=.o}
 BONUS_OBJS	= ${BONUS:.c=.o}

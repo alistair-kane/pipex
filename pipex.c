@@ -6,20 +6,33 @@
 /*   By: alistair <alistair@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/21 00:15:16 by alkane            #+#    #+#             */
-/*   Updated: 2022/03/05 02:06:25 by alistair         ###   ########.fr       */
+/*   Updated: 2022/03/11 18:05:36 by alistair         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-#include <stdio.h>
-#include <sys/wait.h>
 
 static void	free_double(char **dp, int i)
 {
 	while (dp[++i])
 		free(dp[i]);
 	free(dp);
+}
+
+void	exit_error(const char *s)
+{
+	perror(s);
+	exit(EXIT_FAILURE);
+}
+
+int	file_open(const char *name, int o_flags)
+{
+	int	fd;
+	
+	fd = open(name, o_flags, 0644);
+	if (fd < 0)
+		exit_error(name);
+	return (fd);
 }
 
 static char	*return_path(char **paths, char *execname)
@@ -43,51 +56,56 @@ static char	*return_path(char **paths, char *execname)
 	return (NULL);
 }
 
-static char	*seek_path(char *execname)
+static char	*seek_path(char *execname, char **envp)
 {
-	extern char	**environ;
+	// extern char	**environ;
 	char		**paths;
 
-	while (*environ != NULL)
+	while (*envp != NULL)
 	{
-		if (!ft_strncmp(*environ, "PATH", 4))
+		if (!ft_strncmp(*envp, "PATH", 4))
 		{
-			paths = ft_split(*environ, ':');
+			paths = ft_split(*envp, ':');
 			if (return_path(paths, execname))
 				return (return_path(paths, execname));
 			free_double(paths, -1);
 		}
-		environ++;
+		envp++;
 	}
 	free(execname);
 	return (NULL);
 }
 
-int	exec_cmd(char *argv)
+void	exec_cmd(char *argv, char **envp)
 {
-	extern char	**environ;
+	// extern char	**environ;
 	char		**input;
 	char		*path;
-
+	
 	input = ft_split(argv, ' ');
-	path = seek_path(input[0]);
+	if (ft_strrchr(input[0], '/'))
+		path = seek_path(ft_strrchr(input[0], '/'), envp);
+	else
+		path = seek_path(input[0], envp);
 	if (!path)
 	{
 		free_double(input, 0);
-		return (2);
+		exit_error("command not found");
 	}
-	execve(path, input, environ);
-	return (0);
+	execve(path, input, envp);
+	exit_error(path);
 }
 
-void	piping(char *argv)
+void	piping(char *argv, char **envp)
 {	
-	int			pid;
-	int			fd[2];
+	int	pid;
+	int	fd[2];
 
 	if (pipe(fd) == -1)
-		return ;
+		exit_error("pipe");
 	pid = fork();
+	if (pid < 0)
+		exit_error("fork");
 	if (pid > 0)
 	{	
 		close(fd[1]);
@@ -99,12 +117,12 @@ void	piping(char *argv)
 	{
 		close(fd[0]);
 		dup2(fd[1], STDOUT_FILENO);
-		exec_cmd(argv);
+		exec_cmd(argv, envp);
 		close(fd[1]);
 	}
 }
 
-int	main(int argc, char **argv)
+int	main(int argc, char **argv, char **envp)
 {
 	int			i;
 	int			fd[2];
@@ -113,27 +131,25 @@ int	main(int argc, char **argv)
 	{
 		if (!ft_strncmp(argv[1], "here_doc", ft_strlen(argv[1])))
 		{
-			
-			fd[1] = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+			fd[0] = file_open(input_to_limiter(argv[2]), O_RDONLY);
+			fd[1] = file_open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND);
 			i = 2;
-			return (0);
 		}
-		else if (argc >= 5)
+		else
 		{
-			fd[0] = open(argv[1], O_RDONLY);
-			fd[1] = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if (fd[0] == -1)
-				return 2;
+			fd[0] = file_open(argv[1], O_RDONLY);
+			fd[1] = file_open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC);
 			i = 1;
 		}
 		dup2(fd[0], STDIN_FILENO);
+		unlink("temp");
 		while (++i < argc - 2)
-			piping(argv[i]);
+			piping(argv[i], envp);
 		dup2(fd[1], STDOUT_FILENO);
-		if (exec_cmd(argv[i]))
-			return 2;
+		exec_cmd(argv[i], envp);
 		close(fd[0]);
 		close(fd[1]);
+		return (EXIT_SUCCESS);
 	}
-	return (0);
+	return (EXIT_FAILURE);
 }
